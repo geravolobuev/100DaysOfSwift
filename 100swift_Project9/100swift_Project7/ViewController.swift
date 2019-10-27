@@ -11,7 +11,7 @@ import UIKit
 class ViewController: UITableViewController {
     var petitions = [Petition]()
     var filtered = [Petition]()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -20,13 +20,20 @@ class ViewController: UITableViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Credits", style: .plain, target: self, action: #selector(showCredits))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Filter", style: .plain, target: self, action: #selector(filterEntries))
         
+        performSelector(inBackground: #selector(fetchJSON), with: nil)
+    }
     
+    @objc func fetchJSON() {
         let urlString: String
         if navigationController?.tabBarItem.tag == 0 {
             urlString = "https://www.hackingwithswift.com/samples/petitions-1.json"
-
+            
         } else {
             urlString = "https://www.hackingwithswift.com/samples/petitions-2.json"
+        }
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            
         }
         
         func startAll() {
@@ -36,7 +43,7 @@ class ViewController: UITableViewController {
                     return
                 }
             }
-            showError()
+            performSelector(onMainThread: #selector(showError), with: nil, waitUntilDone: false)
         }
         startAll()
     }
@@ -52,10 +59,11 @@ class ViewController: UITableViewController {
         present(ac, animated: true)
     }
     
-    func showError() {
-        let ac = UIAlertController(title: "Loading error", message: "There was a problem loading a feed. Please check your connection and try again", preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "OK", style: .default))
-        present(ac, animated: true)
+    @objc func showError() {
+        
+            let ac = UIAlertController(title: "Loading error", message: "There was a problem loading a feed. Please check your connection and try again", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
     }
     
     func parse(json: Data) {
@@ -64,23 +72,25 @@ class ViewController: UITableViewController {
         if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
             petitions = jsonPetitions.results
             filtered = petitions
-            tableView.reloadData()
+            tableView.performSelector(onMainThread: #selector(UITableView.reloadData), with: nil, waitUntilDone: false)
+        } else {
+            performSelector(onMainThread: #selector(showError), with: nil, waitUntilDone: false)
         }
     }
     
     func filterParse(json: Data) {
-    
+        
         let decoder = JSONDecoder()
         let filterWord = "Trump"
-
+        
         if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
             petitions = jsonPetitions.results.filter { filterWord.contains($0.title) }
             tableView.reloadData()
         }
-
+        
     }
     
-
+    
     @objc func filterEntries() {
         let ac = UIAlertController(title: "Enter your text", message: nil, preferredStyle: .alert)
         ac.addTextField()
@@ -93,17 +103,17 @@ class ViewController: UITableViewController {
         
         ac.addAction(submitAction)
         ac.addAction(UIAlertAction.init(title: "Refresh", style: .default, handler: { (action) in
-         self.refresher()
-           }))
+            self.refresher()
+        }))
         present(ac, animated: true)
-    
+        
     }
     
     func submit(answer: String) {
         petitions.removeAll(keepingCapacity: true)
         for title in filtered {
             if title.title.contains(answer) {
-            petitions.insert(title, at: 0)
+                petitions.insert(title, at: 0)
             } 
         }
         tableView.reloadData()
@@ -113,7 +123,7 @@ class ViewController: UITableViewController {
         
         return petitions.count
     }
-
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         
