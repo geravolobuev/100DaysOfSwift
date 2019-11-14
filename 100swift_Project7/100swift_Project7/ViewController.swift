@@ -11,7 +11,7 @@ import UIKit
 class ViewController: UITableViewController {
     var petitions = [Petition]()
     var filtered = [Petition]()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -20,11 +20,11 @@ class ViewController: UITableViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Credits", style: .plain, target: self, action: #selector(showCredits))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Filter", style: .plain, target: self, action: #selector(filterEntries))
         
-    
+        
         let urlString: String
         if navigationController?.tabBarItem.tag == 0 {
             urlString = "https://www.hackingwithswift.com/samples/petitions-1.json"
-
+            
         } else {
             urlString = "https://www.hackingwithswift.com/samples/petitions-2.json"
         }
@@ -59,28 +59,30 @@ class ViewController: UITableViewController {
     }
     
     func parse(json: Data) {
-        let decoder = JSONDecoder()
-        
-        if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
-            petitions = jsonPetitions.results
-            filtered = petitions
-            tableView.reloadData()
+        DispatchQueue.global(qos: .userInitiated).async {
+            let decoder = JSONDecoder()
+            
+            if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
+                self.petitions = jsonPetitions.results
+                self.filtered = self.petitions
+                self.tableView.reloadData()
+            }
         }
     }
     
     func filterParse(json: Data) {
-    
+        
         let decoder = JSONDecoder()
         let filterWord = "Trump"
-
+        
         if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
             petitions = jsonPetitions.results.filter { filterWord.contains($0.title) }
             tableView.reloadData()
         }
-
+        
     }
     
-
+    
     @objc func filterEntries() {
         let ac = UIAlertController(title: "Enter your text", message: nil, preferredStyle: .alert)
         ac.addTextField()
@@ -93,27 +95,29 @@ class ViewController: UITableViewController {
         
         ac.addAction(submitAction)
         ac.addAction(UIAlertAction.init(title: "Refresh", style: .default, handler: { (action) in
-         self.refresher()
-           }))
+            self.refresher()
+        }))
         present(ac, animated: true)
-    
+        
     }
     
     func submit(answer: String) {
-        petitions.removeAll(keepingCapacity: true)
-        for title in filtered {
-            if title.title.contains(answer) {
-            petitions.insert(title, at: 0)
-            } 
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.petitions.removeAll(keepingCapacity: true)
+            for title in self.filtered {
+                if title.title.contains(answer) {
+                    self.petitions.insert(title, at: 0)
+                }
+            }
+            self.tableView.reloadData()
         }
-        tableView.reloadData()
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return petitions.count
     }
-
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         
