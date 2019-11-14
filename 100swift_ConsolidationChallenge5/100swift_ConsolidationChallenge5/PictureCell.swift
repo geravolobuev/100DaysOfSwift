@@ -9,7 +9,9 @@
 import UIKit
 
 class PictureCell: UITableViewCell {
-
+    @IBOutlet var thumbnailCaption: UILabel!
+    @IBOutlet var thumbnailPic: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

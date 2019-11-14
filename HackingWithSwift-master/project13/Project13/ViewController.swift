@@ -12,6 +12,9 @@ import UIKit
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var intensity: UISlider!
+    @IBOutlet var radius: UISlider!
+    @IBOutlet var changeFilter: UIButton!
+    
     var currentImage: UIImage!
     
     var currentFilter: CIFilter!
@@ -23,6 +26,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         title = "YACIFP"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(importPicture))
         currentFilter = CIFilter(name: "CISepiaTone")
+        changeFilter.setTitle(currentFilter.name, for: .normal)
+        
     }
     
     @IBAction func changeFilter(_ sender: Any) {
@@ -39,12 +44,23 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @IBAction func save(_ sender: Any) {
-        UIImageWriteToSavedPhotosAlbum(imageView.image!, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+        if imageView.image != nil {
+            UIImageWriteToSavedPhotosAlbum(imageView.image!, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+        } else {
+            let ac = UIAlertController(title: "Error", message: "There is no image to save!", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Ok", style: .default))
+            present(ac, animated: true)
+        }
     }
     
     @IBAction func intensityChanged(_ sender: Any) {
         applyProcessing()
     }
+    
+    @IBAction func radiusChanged(_ sender: Any) {
+        applyProcessing()
+    }
+    
     
     @objc func importPicture() {
         let picker = UIImagePickerController()
@@ -70,7 +86,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let inputKeys = currentFilter.inputKeys
         
         if inputKeys.contains(kCIInputIntensityKey) { currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey) }
-        if inputKeys.contains(kCIInputRadiusKey) { currentFilter.setValue(intensity.value * 200, forKey: kCIInputRadiusKey) }
+        if inputKeys.contains(kCIInputRadiusKey) {
+            currentFilter.setValue(radius.value, forKey: kCIInputRadiusKey) }
         if inputKeys.contains(kCIInputScaleKey) { currentFilter.setValue(intensity.value * 10, forKey: kCIInputScaleKey) }
         if inputKeys.contains(kCIInputCenterKey) { currentFilter.setValue(CIVector(x: currentImage.size.width / 2, y: currentImage.size.height / 2), forKey: kCIInputCenterKey) }
         
@@ -78,6 +95,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             let processedImage = UIImage(cgImage: cgimg)
             self.imageView.image = processedImage
         }
+       
+
     }
     
     
@@ -88,7 +107,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         let beginImage = CIImage(image: currentImage)
         currentFilter.setValue(beginImage, forKey: kCIInputImageKey)
-        
+        changeFilter.setTitle(currentFilter.name, for: .normal)
         applyProcessing()
     }
     
