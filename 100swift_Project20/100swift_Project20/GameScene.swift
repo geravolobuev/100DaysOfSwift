@@ -18,12 +18,21 @@ class GameScene: SKScene {
     let bottomEdge = -22
     let rightEdge = 1024 + 22
     
-    var score = 0 {
+    var gameOver: SKLabelNode!
+    
+    var triesLabel: SKLabelNode!
+    var numOfTries = 5 {
         didSet {
-            
+            triesLabel.text = "Left: \(numOfTries)"
         }
     }
     
+    var scoreLabel: SKLabelNode!
+    var score = 0 {
+        didSet {
+            scoreLabel.text = "Score: \(score)"
+        }
+    }
     
     override func didMove(to view: SKView) {
         let background = SKSpriteNode(imageNamed: "background")
@@ -32,7 +41,28 @@ class GameScene: SKScene {
         background.zPosition = -1
         addChild(background)
         
-        gameTimer = Timer.scheduledTimer(timeInterval: 6, target: self, selector: #selector(launchFireworks), userInfo: nil, repeats: true)
+        scoreLabel = SKLabelNode(fontNamed: "Chalkduster")
+        scoreLabel.position = CGPoint(x: 16, y: 16)
+        scoreLabel.horizontalAlignmentMode = .left
+        addChild(scoreLabel)
+        
+        triesLabel = SKLabelNode(fontNamed: "Chalkduster")
+        triesLabel.position = CGPoint(x: 800, y: 32)
+        triesLabel.horizontalAlignmentMode = .left
+        addChild(triesLabel)
+        
+        gameOver = SKLabelNode(fontNamed: "Chalkduster")
+        gameOver.text = "GAME OVER"
+        gameOver.position = CGPoint(x: 512, y: 512)
+        gameOver.horizontalAlignmentMode = .center
+        gameOver.zPosition = -2
+        addChild(gameOver)
+        
+        score = 0
+        numOfTries = 5
+        
+        
+        gameTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(launchFireworks), userInfo: nil, repeats: true)
     }
     
     func createFirework(xMovement: CGFloat, x: Int, y: Int) {
@@ -70,7 +100,7 @@ class GameScene: SKScene {
     
     @objc func launchFireworks() {
         let movementAmount: CGFloat = 1800
-        
+        numOfTries -= 1
         switch Int.random(in: 0...3) {
         case 0:
             // fire five, straight up
@@ -147,6 +177,10 @@ class GameScene: SKScene {
                 firework.removeFromParent()
             }
         }
+        if numOfTries == 0 {
+            gameTimer?.invalidate()
+            gameOver.zPosition = 999
+        }
     }
     
     func explode(firework: SKNode) {
@@ -154,7 +188,19 @@ class GameScene: SKScene {
             emitter.position = firework.position
             addChild(emitter)
         }
-        firework.removeFromParent()
+
+        let wait = SKAction.wait(forDuration: 1.0)
+          
+        let remove = SKAction.run({
+              firework.removeFromParent()
+          })
+          
+          let sequence = SKAction.sequence([wait, remove])
+
+          let removeAction = SKAction.repeatForever(sequence)
+
+          self.run(removeAction)
+        
     }
     
     func explodeFireworks() {
