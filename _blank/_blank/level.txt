@@ -1,0 +1,9 @@
+Hello|Gamardjoba
+Bread|Puri
+Cat|Kata
+Woman|Kali
+Car|Manqana
+Mother|Deda
+Father|Mama
+Apartment|Bina
+Georgia|Sakartvelo

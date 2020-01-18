@@ -5,7 +5,7 @@
 //  Created by MAC on 30/10/2019.
 //  Copyright © 2019 Gera Volobuev. All rights reserved.
 //
-
+import LocalAuthentication
 import UIKit
 
 class ViewController: UICollectionViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -15,7 +15,12 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let notificationCenter = NotificationCenter.default
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Login", style: .plain, target: self, action: #selector(authenticate))
+        
+        collectionView.isHidden = true
+        notificationCenter.addObserver(self, selector: #selector(savePhotos), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -70,7 +75,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
- 
+    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let person = people[indexPath.item]
         let ac = UIAlertController(title: "Do you want to remove or rename the person?", message: nil, preferredStyle: .alert)
@@ -86,10 +91,71 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         }))
         ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(ac, animated: true)
-
-
-
-            
+        
     }
+    
+    @objc func authenticate() {
+        let context = LAContext()
+        var error: NSError?
+        
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            let reason = "Indentify yourself!"
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { [weak self] success, authenticationError in
+                DispatchQueue.main.async {
+                    if success {
+                        self?.unlockPhotos()
+                    } else {
+                        // error
+                        let ac = UIAlertController(title: "Authentication failed!", message: "You could not be verified.", preferredStyle: .alert)
+                        ac.addAction(UIAlertAction(title: "Ok", style: .default))
+                        self?.present(ac, animated: true)
+                    }
+                }
+            }
+        } else {
+            // NO BIOMETRY
+            checkPassword()
+        }
+    }
+    
+    func checkPassword() {
+        let ac = UIAlertController(title: "Enter your password:", message: nil, preferredStyle: .alert)
+        ac.addTextField { (textField) in
+            
+        }
+        
+        if KeychainWrapper.standard.string(forKey: "password") != nil {
+            ac.addAction(UIAlertAction(title: "Login", style: .default, handler: { [weak ac] (_) in
+                guard let textField = ac?.textFields![0] else { return }
+                let password = textField.text!
+                if KeychainWrapper.standard.string(forKey: "password") == password {
+                    self.unlockPhotos()
+                } else {
+                    let ac = UIAlertController(title: "Authentication failed!", message: "You could not be verified.", preferredStyle: .alert)
+                    ac.addAction(UIAlertAction(title: "Ok", style: .default))
+                    self.present(ac, animated: true)
+                }
+            }))
+            
+        } else {
+            ac.addAction(UIAlertAction(title: "Register password", style: .default, handler: { [weak ac] (_) in
+                guard let textField = ac?.textFields![0] else { return }
+                let password = textField.text!
+                KeychainWrapper.standard.set(password, forKey: "password")
+            }))
+        }
+        
+        self.present(ac, animated: true)
+    }
+    
+    func unlockPhotos() {
+        collectionView.isHidden = false
+    }
+    
+    @objc func savePhotos() {
+        collectionView.isHidden = true
+    }
+    
+    
 }
 

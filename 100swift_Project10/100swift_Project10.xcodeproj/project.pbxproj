@@ -14,6 +14,8 @@
 		04C247A723698D050065B72F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04C247A523698D050065B72F /* LaunchScreen.storyboard */; };
 		04C247AF23698EA60065B72F /* PersonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C247AE23698EA60065B72F /* PersonCell.swift */; };
 		04FC60E4236B2529002117E8 /* Person.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FC60E3236B2529002117E8 /* Person.swift */; };
+		04FDE38C23CA2026003F29DF /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FDE38A23CA2026003F29DF /* KeychainWrapper.swift */; };
+		04FDE38D23CA2026003F29DF /* KeychainItemAccessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FDE38B23CA2026003F29DF /* KeychainItemAccessibility.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		04C247A823698D050065B72F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04C247AE23698EA60065B72F /* PersonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonCell.swift; sourceTree = "<group>"; };
 		04FC60E3236B2529002117E8 /* Person.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Person.swift; sourceTree = "<group>"; };
+		04FDE38A23CA2026003F29DF /* KeychainWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeychainWrapper.swift; path = ../../100swift_Project28/100swift_Project28/KeychainWrapper.swift; sourceTree = "<group>"; };
+		04FDE38B23CA2026003F29DF /* KeychainItemAccessibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeychainItemAccessibility.swift; path = ../../100swift_Project28/100swift_Project28/KeychainItemAccessibility.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +64,8 @@
 			children = (
 				04C2479C23698D020065B72F /* AppDelegate.swift */,
 				04C2479E23698D020065B72F /* ViewController.swift */,
+				04FDE38B23CA2026003F29DF /* KeychainItemAccessibility.swift */,
+				04FDE38A23CA2026003F29DF /* KeychainWrapper.swift */,
 				04FC60E3236B2529002117E8 /* Person.swift */,
 				04C247A023698D020065B72F /* Main.storyboard */,
 				04C247A323698D050065B72F /* Assets.xcassets */,
@@ -145,6 +151,8 @@
 				04C2479F23698D020065B72F /* ViewController.swift in Sources */,
 				04FC60E4236B2529002117E8 /* Person.swift in Sources */,
 				04C2479D23698D020065B72F /* AppDelegate.swift in Sources */,
+				04FDE38C23CA2026003F29DF /* KeychainWrapper.swift in Sources */,
+				04FDE38D23CA2026003F29DF /* KeychainItemAccessibility.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
