@@ -1,4 +1,4 @@
-**COMPLETED**
+**/COMPLETED/**
 # 100DaysOfSwift
 Hacking with Swift
 
